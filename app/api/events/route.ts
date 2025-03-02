@@ -48,7 +48,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-        const { title, description, release_date, duration, category, link } = body as Event
+        const { title, description, release_date, category, subcategory1, subcategory2, link } = body as Event
 
         if (!title || !release_date || !category) {
             return NextResponse.json(
@@ -64,8 +64,9 @@ export async function POST(request: Request) {
                     title,
                     description,
                     release_date,
-                    duration,
                     category,
+                    subcategory1,
+                    subcategory2,
                     link
                 }
             ])
