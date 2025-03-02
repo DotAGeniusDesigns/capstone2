@@ -25,6 +25,7 @@ const toastVariants = cva(
 export interface ToastProps extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof toastVariants> {
     onOpenChange?: (open: boolean) => void
+    duration?: number
 }
 
 export type ToastActionElement = React.ReactElement
