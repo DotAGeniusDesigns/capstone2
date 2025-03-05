@@ -10,16 +10,29 @@ import { CountdownTimer } from "../../components/CountdownTimer"
 import { toast } from "../../components/ui/use-toast"
 import { categoryColors, categoryBgColors } from "../../calendar/page"
 import Link from "next/link"
+import Image from 'next/image'
+import { useEvents } from '@/app/hooks/useEvents'
+import { Badge } from '@/components/ui/badge'
+import { HeartIcon, CalendarIcon, LinkIcon } from '@heroicons/react/24/outline'
+import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid'
 
 export default function ReleaseDetailPage() {
     const params = useParams()
     const router = useRouter()
-    const { events } = useCalendar()
+    const { events, isLoading, error, toggleFavorite, isFavorite } = useEvents()
     const eventId = params.id as string
 
+    // Create a map of events by ID for O(1) lookup
+    const eventsMap = React.useMemo(() => {
+        const map = new Map()
+        events.forEach(event => map.set(event.id, event))
+        return map
+    }, [events])
+
+    // Lookup event from map instead of using find (O(1) instead of O(n))
     const event = React.useMemo(() => {
-        return events.find(e => e.id === eventId)
-    }, [events, eventId])
+        return eventsMap.get(eventId)
+    }, [eventsMap, eventId])
 
     const getCategoryColor = (category: string) => {
         return categoryColors[category] || "bg-gray-500"
@@ -60,28 +73,40 @@ export default function ReleaseDetailPage() {
             })
     }
 
-    if (!event) {
+    const handleGoBack = () => {
+        router.back()
+    }
+
+    if (isLoading) {
         return (
-            <div className="container mx-auto py-8">
-                <Button variant="outline" onClick={() => router.back()} className="mb-4">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
-                </Button>
-                <Card>
-                    <CardContent className="pt-6">
-                        <p>Release not found.</p>
-                    </CardContent>
-                </Card>
+            <div className="container mx-auto p-4">
+                <div className="animate-pulse">
+                    <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+                    <div className="h-64 bg-gray-200 rounded mb-4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                </div>
             </div>
         )
+    }
+
+    if (error) {
+        return <div className="container mx-auto p-4 text-red-500">Error: {error.message}</div>
+    }
+
+    if (!event) {
+        return <div className="container mx-auto p-4">Event not found</div>
     }
 
     const colorClass = getCategoryColor(event.category)
     const bgColorClass = getCategoryBgColor(event.category)
 
+    const favorited = isFavorite(event.id)
+
     return (
         <div className="container mx-auto py-8">
-            <Button variant="outline" onClick={() => router.back()} className="mb-4">
+            <Button variant="outline" onClick={handleGoBack} className="mb-4">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
             </Button>
@@ -156,6 +181,82 @@ export default function ReleaseDetailPage() {
                                 className="text-blue-500 hover:underline inline-block px-4 py-2 border border-blue-500 rounded-md hover:bg-blue-50 transition-colors"
                             >
                                 Visit Release Website
+                            </a>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            <Card className="mt-6">
+                <CardHeader>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <CardTitle className="text-2xl font-bold">{event.title}</CardTitle>
+                            <CardDescription>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <Badge className={getCategoryColor(event.category)}>
+                                        {event.category}
+                                    </Badge>
+                                    {event.subcategory1 && (
+                                        <Badge variant="outline">
+                                            {event.subcategory1}
+                                        </Badge>
+                                    )}
+                                    {event.subcategory2 && (
+                                        <Badge variant="outline">
+                                            {event.subcategory2}
+                                        </Badge>
+                                    )}
+                                </div>
+                            </CardDescription>
+                        </div>
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => toggleFavorite(event.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-transparent"
+                        >
+                            {favorited ? (
+                                <HeartIconSolid className="h-6 w-6" />
+                            ) : (
+                                <HeartIcon className="h-6 w-6" />
+                            )}
+                        </Button>
+                    </div>
+                </CardHeader>
+
+                <CardContent>
+                    {event.image_url && (
+                        <div className="relative h-64 mb-4">
+                            <Image
+                                src={event.image_url}
+                                alt={event.title}
+                                fill
+                                className="object-cover rounded-md"
+                            />
+                        </div>
+                    )}
+
+                    <div className="flex items-center gap-2 text-gray-600 mb-4">
+                        <CalendarIcon className="h-5 w-5" />
+                        <span>{new Date(event.release_date).toLocaleDateString()}</span>
+                    </div>
+
+                    <div className="prose max-w-none">
+                        <p>{event.description}</p>
+                    </div>
+
+                    {event.link && (
+                        <div className="mt-6">
+                            <a
+                                href={event.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800"
+                            >
+                                <LinkIcon className="h-5 w-5" />
+                                <span>Visit official site</span>
                             </a>
                         </div>
                     )}

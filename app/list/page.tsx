@@ -13,6 +13,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { categoryColors, categoryBgColors } from "../calendar/page"
 import type { Database } from "../lib/database.types"
 import { useRouter } from "next/navigation"
+import { CategoryBadge } from '../components/CategoryBadge'
 
 type Event = Database['public']['Tables']['events']['Row']
 
@@ -33,6 +34,7 @@ export default function ListViewPage() {
     const { events, userInterests, isLoading, searchQuery, setSearchQuery } = useCalendar()
     const [expandedEventId, setExpandedEventId] = React.useState<string | null>(null)
     const [isSearching, setIsSearching] = React.useState(false)
+    const router = useRouter()
 
     const filteredEvents = React.useMemo(() => {
         // Convert userInterests to array for filtering
@@ -156,7 +158,7 @@ export default function ListViewPage() {
             <Card
                 key={event.id}
                 className={`mb-2 border-l-4 ${colorClass.replace('bg-', 'border-')} ${bgColorClass} cursor-pointer hover:shadow-md transition-shadow`}
-                onClick={() => window.location.href = `/event/${event.id}`}
+                onClick={() => router.push(`/event/${event.id}`)}
             >
                 <CardHeader className={`py-2`}>
                     <div className="flex justify-between items-start">
@@ -209,7 +211,7 @@ export default function ListViewPage() {
                             className="text-xs h-8 px-2"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                window.location.href = `/event/${event.id}`;
+                                router.push(`/event/${event.id}`);
                             }}
                         >
                             View Details
