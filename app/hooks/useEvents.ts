@@ -25,13 +25,17 @@ export function useEvents() {
         const fetchEvents = async () => {
             try {
                 setIsLoading(true)
+                console.log("useEvents: Fetching events...");
                 const response = await fetch('/api/events')
                 if (!response.ok) {
+                    console.error("useEvents: Error fetching events:", response.status, response.statusText);
                     throw new Error('Failed to fetch events')
                 }
                 const data = await response.json()
+                console.log("useEvents: Events loaded:", data ? data.length : 0, "events");
                 setEvents(data)
             } catch (err) {
+                console.error("useEvents: Failed to load events:", err)
                 setError(err instanceof Error ? err : new Error('An unknown error occurred'))
             } finally {
                 setIsLoading(false)

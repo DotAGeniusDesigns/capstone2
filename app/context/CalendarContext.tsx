@@ -65,20 +65,19 @@ export function CalendarProvider({ children }: { children: React.ReactNode }) {
         try {
             setIsLoading(true)
             setError(null)
+            console.log("Fetching events...");
 
             const response = await fetch('/api/events')
             if (!response.ok) {
+                console.error("Error fetching events:", response.status, response.statusText);
                 throw new Error('Failed to fetch events')
             }
 
             const data = await response.json()
+            console.log("Events loaded:", data ? data.length : 0, "events");
 
-            if (!data.events) {
-                setEvents([])
-                return
-            }
-
-            setEvents(data.events)
+            // The API directly returns the events array, not an object with an events property
+            setEvents(data || [])
         } catch (err) {
             console.error("Failed to load events:", err)
             setError("Failed to load events. Please try again later.")
@@ -250,6 +249,7 @@ export function CalendarProvider({ children }: { children: React.ReactNode }) {
         await loadEvents()
     }
 
+    // Load events on mount
     useEffect(() => {
         loadEvents()
         loadUserInterests()
