@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import { CalendarProvider } from "./context/CalendarContext"
 import { Toaster } from "./components/ui/use-toast"
 import { Navbar } from "./components/NavBar"
+import { AuthProvider } from "./context/AuthContext"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -20,13 +21,15 @@ export default function RootLayout({
     return (
         <html lang="en" className="h-full">
             <body className={`${inter.className} h-full`}>
-                <CalendarProvider>
-                    <div className="min-h-screen flex flex-col">
-                        <Navbar />
-                        <main className="flex-grow flex flex-col">{children}</main>
-                    </div>
-                    <Toaster />
-                </CalendarProvider>
+                <AuthProvider>
+                    <CalendarProvider>
+                        <div className="min-h-screen flex flex-col">
+                            <Navbar />
+                            <main className="flex-grow flex flex-col">{children}</main>
+                        </div>
+                        <Toaster />
+                    </CalendarProvider>
+                </AuthProvider>
             </body>
         </html>
     )
