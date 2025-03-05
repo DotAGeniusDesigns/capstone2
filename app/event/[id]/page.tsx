@@ -11,8 +11,8 @@ import { toast } from "../../components/ui/use-toast"
 import { categoryColors, categoryBgColors } from "../../calendar/page"
 import Link from "next/link"
 import Image from 'next/image'
-import { useEvents } from '@/app/hooks/useEvents'
-import { Badge } from '@/components/ui/badge'
+import { useEvents } from '../../hooks/useEvents'
+import { Badge } from '../../components/ui/badge'
 import { HeartIcon, CalendarIcon, LinkIcon } from '@heroicons/react/24/outline'
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid'
 

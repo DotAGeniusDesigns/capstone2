@@ -23,7 +23,8 @@
     ],
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "target": "ES2017"
   },
   "include": [
     "next-env.d.ts",
